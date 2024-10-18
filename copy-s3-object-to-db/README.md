@@ -10,7 +10,7 @@ For this solution, a serverless implementation making use of lambdas would be pr
 
 A MySQL database is chosen as this is currently the least expensive database choice (And the AWS free tier covers all the cost if using the configuration of db.t2.micro with 20GB of storage).
 
-<a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/tree/main/copy-s3-object-to-db/"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-db/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
+<a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/tree/main/copy-s3-object-to-db/"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-db/images/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
 
 Python3.12 environment is used for the lambda functions
 
@@ -41,7 +41,3 @@ The stack can also be created using the **AWS CLI**.
 4. Upload test json files to S3 Data bucket to verify successful deployment
 5. Retrieve the endpoint of the RDS MySQL database from the RDS service on the AWS console
 6. Login to MySQL database to view all available data in the database
-
-```
-
-```
