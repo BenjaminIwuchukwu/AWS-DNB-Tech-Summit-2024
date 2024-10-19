@@ -1,7 +1,5 @@
 import boto3, cfnresponse
 
-SUCCESS, FAILED = "SUCCESS", "FAILED"
-
 s3 = boto3.resource('s3')
 
 def lambda_handler(event, context):
@@ -21,8 +19,8 @@ def lambda_handler(event, context):
     except Exception as e:
         print('Failed to process:', e)
         responseStatus = 'FAILED'
-        responseData = {'Failure': 'Something went wrong.'}
-    cfnresponse.send(event, context, responseStatus, responseData, "CustomResourcePhysicalID")
+        responseData = {'error': e}
+    cfnresponse.send(event, context, responseStatus, responseData)
 
 def add_notification(LambdaArn, Bucket):
     s3.BucketNotification(Bucket).put(

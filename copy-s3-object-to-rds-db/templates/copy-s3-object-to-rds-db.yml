@@ -1,37 +1,46 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Resources for copying data from S3 to database
+
+Description: Infrastructure for copying data from S3 to database
+
 Parameters:
   S3DataBucket:
     Description: S3 bucket to copy data from
     Type: String
+
   S3LambdaBucket:
-    Description: S3 bucket that contains python script
+    Description: S3 bucket that contains python script zips and layer zip files
     Type: String
+
   PyMySQLLayerObjectKey:
     Description: S3 object key for the MySQL python layer
     Type: String
+
   CopyDataToDBS3ObjectKey:
     Description: S3 object key for the copy data to database python script
     Type: String
+
   CustomNotificationObjectKey:
     Description: S3 object key for the custom notification python script
     Type: String
+
   DBName:
     Default: MySQLDB
     Description: The MySQL Database name
     Type: String
-    MinLength: "1"
+    MinLength: "4"
     MaxLength: "64"
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: Must begin with a letter and contain only up to 64 alphanumeric characters.
+
   DBUsername:
     Description: Username for MySQL database access
     Type: String
-    MinLength: "1"
+    MinLength: "4"
     MaxLength: "16"
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: must begin with a letter and contain only up to 16 alphanumeric characters.
+
   DBPassword:
     NoEcho: "true"
     Description: Password for MySQL database access
@@ -40,6 +49,7 @@ Parameters:
     MaxLength: "41"
     AllowedPattern: "[a-zA-Z0-9]*"
     ConstraintDescription: must be between at least 8 characters and contain only up to 41 alphanumeric characters.
+
 Resources:
   DBInstance:
     Type: AWS::RDS::DBInstance
@@ -50,12 +60,14 @@ Resources:
       AllocatedStorage: "20"
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
+
   PymysqlLayer:
     Type: "AWS::Lambda::LayerVersion"
     Properties:
       Content:
         S3Bucket: !Ref S3LambdaBucket
         S3Key: !Ref PyMySQLLayerObjectKey
+
   S3LambdaFunction:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -74,6 +86,7 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 30
+
   CustomResourceLambdaFunction:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -84,6 +97,7 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 60
+
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"
     Properties:
@@ -92,6 +106,7 @@ Resources:
       Principal: s3.amazonaws.com
       SourceAccount: !Ref "AWS::AccountId"
       SourceArn: !Sub "arn:aws:s3:::${S3DataBucket}"
+
   LambdaIAMRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -108,7 +123,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaENIManagementAccess
       Policies:
         - PolicyName: S3PutBucketNotification
           PolicyDocument:
@@ -118,6 +132,7 @@ Resources:
                 Action:
                   - "s3:PutBucketNotification"
                 Resource: !Sub "arn:aws:s3:::${S3DataBucket}"
+
   LambdaTrigger:
     Type: "Custom::LambdaTrigger"
     DependsOn: LambdaInvokePermission

@@ -1,0 +1,251 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Infrastructure for AWS API Gateway, AWS Lambda and AWS DynamoDb
+
+Parameters:
+  ApiResourcePath:
+    Type: String
+    Description: Resource path for AWS API Gateway.
+    Default: dynamodbmanager
+
+  S3LambdaBucket:
+    Description: S3 bucket that contains javascript script zips
+    Type: String
+
+  InitFunctionObjectKey:
+    Description: S3 object key for the init function javascript script
+    Type: String
+
+  ApiFunctionObjectKey:
+    Description: S3 object key for the API function javascript script
+    Type: String
+
+Resources:
+  DynamoDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: GSI
+          KeySchema:
+            - AttributeName: SK
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 10
+            WriteCapacityUnits: 10
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableClass: STANDARD
+      TableName: LocationsAndOffers
+
+  AddOffer:
+    Type: Custom::InitFunction
+    DependsOn: DynamoDB
+    Properties:
+      ServiceToken: !GetAtt InitFunction.Arn
+      Dtype: "offer"
+      Dname: "Super Duper Offer"
+      Did: "d9b1d9ff-543e-47c7-895f-87f71dcad91b"
+      DbrandId: "692126c8-6e72-4ad7-8a73-25fc2f1f56e4"
+
+  AddLocation1:
+    Type: Custom::InitFunction
+    DependsOn: DynamoDB
+    Properties:
+      ServiceToken: !GetAtt InitFunction.Arn
+      Dtype: "location"
+      Did: "03665f6d-27e2-4e69-aa9b-5b39d03e5f59"
+      Daddress: "Address 1"
+      DbrandId: "692126c8-6e72-4ad7-8a73-25fc2f1f56e4"
+
+  AddLocation2:
+    Type: Custom::InitFunction
+    DependsOn: DynamoDB
+    Properties:
+      ServiceToken: !GetAtt InitFunction.Arn
+      Dtype: "location"
+      Did: "706ef281-e00f-4288-9a84-973aeb29636e"
+      Daddress: "Address 2"
+      DbrandId: "692126c8-6e72-4ad7-8a73-25fc2f1f56e4"
+
+  AddLocation3:
+    Type: Custom::InitFunction
+    DependsOn: DynamoDB
+    Properties:
+      ServiceToken: !GetAtt InitFunction.Arn
+      Dtype: "location"
+      Did: "1c7a27de-4bbd-4d63-a5ec-2eae5a0f1870"
+      Daddress: "Address 3"
+      DbrandId: "692126c8-6e72-4ad7-8a73-25fc2f1f56e4"
+
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: dynamodbAccessRole
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:Query"
+                  - "dynamodb:Scan"
+                  - "dynamodb:UpdateItem"
+                Resource: "*"
+
+  InitFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3LambdaBucket
+        S3Key: !Ref InitFunctionObjectKey
+      Handler: InitFunction.handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 60
+
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Join ["", [{ "Ref": "AWS::StackName" }, "-api"]]
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+      RestApiId: !Ref ApiGatewayRestApi
+      PathPart: !Ref ApiResourcePath
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiLambdaFunction.Arn}/invocations"
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Content-Type: integration.response.header.Content-Type
+              method.response.header.Content-Length: integration.response.header.Content-Length
+            ResponseTemplates:
+              application/json: |
+                $input.json('$')
+        RequestTemplates:
+          application/json: |
+            #set($allParams = $input.params()) {
+              "body" : $input.json('$'),
+              "params" : {
+              #foreach($type in $allParams.keySet())
+                  #set($params = $allParams.get($type))
+              "$type" : {
+                  #foreach($paramName in $params.keySet())
+                  "$paramName" : "$util.escapeJavaScript($params.get($paramName))"
+                      #if($foreach.hasNext),#end
+                  #end
+              }
+                  #if($foreach.hasNext),#end
+              #end
+              },
+              "method": "$context.httpMethod",
+              "uri" : "$context.resourcePath"
+            }
+        PassthroughBehavior: WHEN_NO_TEMPLATES
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: Empty
+          ResponseParameters:
+            method.response.header.Content-Type: true
+            method.response.header.Content-Length: true
+      ResourceId: !Ref ApiGatewayResource
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiGatewayDeployment
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: LambdaAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "lambda:*"
+                Resource: !GetAtt ApiLambdaFunction.Arn
+
+  ApiLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3LambdaBucket
+        S3Key: !Ref ApiFunctionObjectKey
+      Handler: ApiLambdaFunction.handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: nodejs18.x
+      Timeout: 60
+
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ApiLambdaFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: "apigateway.amazonaws.com"
+
+Outputs:
+  ApiGatewayInvokeURL:
+    Value: !Sub https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStage}/${ApiResourcePath}

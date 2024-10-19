@@ -1,6 +1,6 @@
-# Copy-S3-Object-to-DB
+# Copy-S3-Object-to-RDS-DB
 
-Contains files that are necessary for IaC deployment, which copies objects from S3 to RDS MySQL database
+Contains files that are necessary for IaC deployment of a solution which copies objects from S3 to RDS MySQL database
 
 ## Architecture Design
 
@@ -10,9 +10,9 @@ For this solution, a serverless implementation making use of lambdas would be pr
 
 A MySQL database is chosen as this is currently the least expensive database choice (And the AWS free tier covers all the cost if using the configuration of db.t2.micro with 20GB of storage).
 
-<a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-db/images/AWS_architecture.jpg"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-db/images/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
+<a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-rds-db/images/AWS_architecture.jpg"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-rds-db/images/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
 
-Python3.12 environment is used for the lambda functions
+Python3.12 function runtime is used for the lambda functions
 
 _NOTE: Details and description of each cloudformation parameter can be found in each parameter's description property._
 
@@ -34,9 +34,9 @@ To deploy the stack:
 2. Upload the cloudformation template file
 3. Fill in all the necessary cloudformation parameters and deploy stack
 
-The stack can also be created using the **AWS CLI**.
+The stack can also be deployed using the **AWS CLI**.
 
-> aws cloudformation deploy --stack-name {your stack name} --template-file file://CloudFormationStack.yml --parameter-overrides S3DataBucket={S3 bucket that stores the uploaded json} ....
+> aws cloudformation deploy --stack-name {your stack name} --template-file file://CloudFormationStack.yml --parameter-overrides S3LambdaBucket={S3 bucket that stores the lambda scripts} ...
 
 4. Upload test json files to S3 Data bucket to verify successful deployment
 5. Retrieve the endpoint of the RDS MySQL database from the RDS service on the AWS console
