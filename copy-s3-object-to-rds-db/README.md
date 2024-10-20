@@ -6,7 +6,7 @@ Contains files that are necessary for IaC deployment of a solution which copies 
 
 An AWS solution is required to automate the copying of objects from S3 to an SQL-like database whenever an object is uploaded to the S3 bucket. The key of the object in the SQL database should be the object key in the S3 bucket.
 
-For this solution, a serverless implementation making use of lambdas would be preferable. This is because of the simplicity of using lambdas and time of the uploads could vary. We only want to run this operation whenever there is an upload instead of having an instance running constantly/managing an instance by ourselves.
+For this solution, a serverless implementation making use of lambdas would be preferable. This is because of the simplicity of using lambdas and time of the uploads could vary. We only want to run this operation whenever there is an upload instead of having a server instance running constantly or managing a server by ourselves.
 
 A MySQL database is chosen as this is currently the least expensive database choice (And the AWS free tier covers all the cost if using the configuration of db.t2.micro with 20GB of storage).
 

@@ -2,6 +2,6 @@
 
 Welcome to the "Infrastructure as Code on AWS" hands-on workshop by Benjamin Iwuchukwu
 
-## TODO
+## Initial Setup
 
 Create S3 buckets for storing python and node.js script zips, layer zips and JSON files at start of workshop
