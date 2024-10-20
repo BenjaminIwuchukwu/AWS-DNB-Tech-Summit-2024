@@ -3,15 +3,15 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Infrastructure for copying data from S3 to database
 
 Parameters:
-  PyMySQLLayerObjectKey:
+  PymysqlLayerKey:
     Description: S3 object key for the MySQL python layer
     Type: String
 
-  CopyDataToDBS3ObjectKey:
+  CopyScriptKey:
     Description: S3 object key for the copy data to database python script
     Type: String
 
-  CustomNotificationObjectKey:
+  CustomNotificationKey:
     Description: S3 object key for the custom notification python script
     Type: String
 
@@ -68,7 +68,7 @@ Resources:
     Properties:
       Content:
         S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref PyMySQLLayerObjectKey
+        S3Key: !Ref PymysqlLayerKey
 
   S3LambdaFunction:
     Type: "AWS::Lambda::Function"
@@ -83,7 +83,7 @@ Resources:
         - !Ref PymysqlLayer
       Code:
         S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref CopyDataToDBS3ObjectKey
+        S3Key: !Ref CopyScriptKey
       Handler: S3LambdaFunction.lambda_handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
@@ -100,7 +100,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref CustomNotificationObjectKey
+        S3Key: !Ref CustomNotificationKey
       Handler: CustomResourceLambdaFunction.lambda_handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
