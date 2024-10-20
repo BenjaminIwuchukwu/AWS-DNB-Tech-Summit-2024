@@ -3,10 +3,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Base Infrastructure for AWS DNB Tech Summit 2024
 
 Parameters:
-  PymysqlLayerKey:
-    Description: S3 object key for the MySQL python layer
-    Type: String
-
   ScriptBucketName:
     Description: Name for S3 bucket to store code scripts and layer zip files
     Type: String
@@ -71,59 +67,6 @@ Resources:
       ToPort: 3306
       SourceSecurityGroupId: !Ref SummitVPCSG
       GroupId: !Ref SummitVPCSG
-
-  PymysqlLayer:
-    Type: "AWS::Lambda::LayerVersion"
-    Properties:
-      Content:
-        S3Bucket: !Ref ScriptBucket
-        S3Key: !Ref PymysqlLayerKey
-
-  ReadRDSFunction:
-    Type: "AWS::Lambda::Function"
-    Properties:
-      Layers:
-        - !Ref PymysqlLayer
-      Code:
-        ZipFile: |
-          import pymysql
-          def lambda_handler(event, context):
-            try:
-              conn = pymysql.connect(host=event['DBHost'], user=event['DBUsername'], password=event['DBPassword'], database=event['DBName'])
-            except pymysql.MySQLError as e:
-              print('Error connecting to database.')
-              raise e
-            with conn.cursor() as cur:
-              cur.execute("select * from data_table")
-              print("The following items have been retrieved from the database:")
-              for row in cur:
-                print(row)
-      Handler: index.lambda_handler
-      Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: python3.12
-      Timeout: 30
-      VpcConfig:
-        SecurityGroupIds:
-          - !Ref SummitVPCSG
-        SubnetIds:
-          - !Ref SummitSubnet1
-          - !Ref SummitSubnet2
-
-  LambdaIAMRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
 Outputs:
   ScriptBucket:

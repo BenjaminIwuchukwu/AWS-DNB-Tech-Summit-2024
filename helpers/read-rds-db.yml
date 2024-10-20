@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Infrastructure for reading MySQL database
+
+Parameters:
+  PymysqlLayerKey:
+    Description: S3 object key for the MySQL python layer
+    Type: String
+
+Resources:
+  PymysqlLayer:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      Content:
+        S3Bucket: !ImportValue ScriptBucket
+        S3Key: !Ref PymysqlLayerKey
+
+  ReadRDSFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Layers:
+        - !Ref PymysqlLayer
+      Code:
+        ZipFile: |
+          import pymysql
+          def lambda_handler(event, context):
+            try:
+              conn = pymysql.connect(host=event['DBHost'], user=event['DBUsername'], password=event['DBPassword'], database=event['DBName'])
+            except pymysql.MySQLError as e:
+              print('Error connecting to database.')
+              raise e
+            with conn.cursor() as cur:
+              cur.execute("select * from data_table")
+              print("The following items have been retrieved from the database:")
+              for row in cur:
+                print(row)
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaIAMRole.Arn
+      Runtime: python3.12
+      Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SummitVPCSG
+        SubnetIds:
+          - !ImportValue SummitSubnet1
+          - !ImportValue SummitSubnet2
+
+  LambdaIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
