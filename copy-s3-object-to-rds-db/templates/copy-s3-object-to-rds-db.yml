@@ -50,15 +50,25 @@ Parameters:
     ConstraintDescription: must be between at least 8 characters and contain only up to 41 alphanumeric characters.
 
 Resources:
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: RDS DB Subnet Group
+      SubnetIds:
+        - !ImportValue SummitSubnet1
+        - !ImportValue SummitSubnet2
+
   DBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: !Ref DBName
-      Engine: MySQL
-      DBInstanceClass: db.t2.micro
-      AllocatedStorage: "20"
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
+      DBName: !Ref DBName
+      Engine: MySQL
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: "20"
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups: !ImportValue SummitVPCSG
 
   PymysqlLayer:
     Type: "AWS::Lambda::LayerVersion"
@@ -85,6 +95,12 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 30
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SummitVPCSG
+        SubnetIds:
+          - !ImportValue SummitSubnet1
+          - !ImportValue SummitSubnet2
 
   CustomResourceLambdaFunction:
     Type: "AWS::Lambda::Function"
@@ -96,6 +112,12 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SummitVPCSG
+        SubnetIds:
+          - !ImportValue SummitSubnet1
+          - !ImportValue SummitSubnet2
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"

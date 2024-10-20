@@ -130,6 +130,12 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
       Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SummitVPCSG
+        SubnetIds:
+          - !ImportValue SummitSubnet1
+          - !ImportValue SummitSubnet2
 
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
@@ -215,6 +221,12 @@ Resources:
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
       Timeout: 60
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SummitVPCSG
+        SubnetIds:
+          - !ImportValue SummitSubnet1
+          - !ImportValue SummitSubnet2
 
   LambdaPermission:
     Type: AWS::Lambda::Permission

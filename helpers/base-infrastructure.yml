@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Base Infrastructure for AWS DNB Tech Summit 2024
+
+Parameters:
+  ScriptBucketName:
+    Description: Name for S3 bucket to store code scripts and layer zip files
+    Type: String
+
+  JsonFilesBucketName:
+    Description: Name for S3 bucket to store json files for copy-s3-object-to-rds-db project
+    Type: String
+
+Resources:
+  ScriptBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ScriptBucketName
+
+  JsonFilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref JsonFilesBucketName
+
+  SummitVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+
+  SummitSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SummitVPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: eu-north-1a
+
+  SummitSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref SummitVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: eu-north-1b
+
+  SummitVPCSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: VPC Security Group for the AWS DNB Tech Summit 2024
+      GroupName: aws-dnb-tech-summit-2024-vpc-sg
+      VpcId: !Ref SummitVPC
+
+  HttpsIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref SummitVPCSG
+      GroupId: !Ref SummitVPCSG
+
+  MySQLIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      SourceSecurityGroupId: !Ref SummitVPCSG
+      GroupId: !Ref SummitVPCSG
+
+Outputs:
+  ScriptBucket:
+    Description: Bucket for storing code scripts and layer zip files
+    Value: !Ref ScriptBucket
+    Export:
+      Name: ScriptBucket
+
+  JsonFilesBucket:
+    Description: Bucket for storing json files for copy-s3-object-to-rds-db project
+    Value: !Ref JsonFilesBucket
+    Export:
+      Name: JsonFilesBucket
+
+  SummitVPC:
+    Description: VPC for the AWS DNB Tech Summit 2024
+    Value: !Ref SummitVPC
+    Export:
+      Name: SummitVPC
+
+  SummitSubnet1:
+    Description: Subnet in eu-north-1a availability zone
+    Value: !Ref SummitSubnet1
+    Export:
+      Name: SummitSubnet1
+
+  SummitSubnet2:
+    Description: Subnet in eu-north-1a availability zone
+    Value: !Ref SummitSubnet2
+    Export:
+      Name: SummitSubnet2
+
+  SummitVPCSG:
+    Description: VPC Security Group for the AWS DNB Tech Summit 2024
+    Value: !Ref SummitVPCSG
+    Export:
+      Name: SummitVPCSG
