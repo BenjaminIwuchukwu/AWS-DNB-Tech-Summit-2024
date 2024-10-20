@@ -122,7 +122,7 @@ Resources:
       Code:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref InitFunctionObjectKey
-      Handler: InitFunction.handler
+      Handler: init.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
       Timeout: 60
@@ -213,7 +213,7 @@ Resources:
       Code:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref ApiFunctionObjectKey
-      Handler: ApiLambdaFunction.handler
+      Handler: api.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
       Timeout: 60
