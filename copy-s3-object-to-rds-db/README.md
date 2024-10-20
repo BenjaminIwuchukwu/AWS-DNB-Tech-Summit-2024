@@ -16,16 +16,6 @@ Python3.12 function runtime is used for the lambda functions
 
 _NOTE: Details and description of each cloudformation parameter can be found in each parameter's description property._
 
-## Security
-
-The MySQL database credentials can be saved into AWS Secrets Manager instead of using environment variables.
-
-## Requirements
-
-- S3 bucket for storing the uploaded json files
-- S3 bucket for storing the python scripts and layer zip files
-- Environment variables: All necessary environment variables are declared in the cloudformation template
-
 ## How to deploy
 
 To deploy the stack:
@@ -36,7 +26,7 @@ To deploy the stack:
 
 The stack can also be deployed using the **AWS CLI**.
 
-> aws cloudformation deploy --stack-name {your stack name} --template-file file://CloudFormationStack.yml --parameter-overrides S3LambdaBucket={S3 bucket that stores the lambda scripts} ...
+> aws cloudformation deploy --stack-name {your stack name} --template-file file://CloudFormationStack.yml --parameter-overrides DBName={The MySQL Database name} ...
 
 4. Upload test json files to S3 Data bucket to verify successful deployment
 5. Retrieve the endpoint of the RDS MySQL database from the RDS service on the AWS console

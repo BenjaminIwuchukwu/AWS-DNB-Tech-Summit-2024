@@ -22,7 +22,7 @@ To deploy the stack:
 
 The stack can also be deployed using the **AWS CLI**.
 
-> aws cloudformation deploy --stack-name {your stack name} --template-body file://CloudFormationStack.yml --parameter-overrides S3LambdaBucket={S3 bucket that stores the lambda scripts} ...
+> aws cloudformation deploy --stack-name {your stack name} --template-body file://CloudFormationStack.yml --parameter-overrides ApiResourcePath={Resource path for AWS API Gateway} ...
 
 The API endpoint can be retrieved from the output in ApiGatewayInvokeURL.
 

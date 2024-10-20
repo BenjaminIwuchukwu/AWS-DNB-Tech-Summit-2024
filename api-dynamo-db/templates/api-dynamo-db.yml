@@ -5,12 +5,8 @@ Description: Infrastructure for AWS API Gateway, AWS Lambda and AWS DynamoDb
 Parameters:
   ApiResourcePath:
     Type: String
-    Description: Resource path for AWS API Gateway.
+    Description: Resource path for AWS API Gateway
     Default: dynamodbmanager
-
-  S3LambdaBucket:
-    Description: S3 bucket that contains javascript script zips
-    Type: String
 
   InitFunctionObjectKey:
     Description: S3 object key for the init function javascript script
@@ -124,7 +120,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: !Ref S3LambdaBucket
+        S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref InitFunctionObjectKey
       Handler: InitFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
@@ -140,7 +136,7 @@ Resources:
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: !Join ["", [{ "Ref": "AWS::StackName" }, "-api"]]
+      Name: aws-dnb-tech-summit-2024-api
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -215,7 +211,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: !Ref S3LambdaBucket
+        S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref ApiFunctionObjectKey
       Handler: ApiLambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
@@ -228,7 +224,7 @@ Resources:
           - !ImportValue SummitSubnet1
           - !ImportValue SummitSubnet2
 
-  LambdaPermission:
+  LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !GetAtt ApiLambdaFunction.Arn
