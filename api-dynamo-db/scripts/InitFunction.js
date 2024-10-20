@@ -1,4 +1,4 @@
-var response = require("./cfn-response");
+var response = require("cfn-response");
 var AWS = require("aws-sdk");
 var dynamo = new AWS.DynamoDB();
 var tableName = "LocationsAndOffers";

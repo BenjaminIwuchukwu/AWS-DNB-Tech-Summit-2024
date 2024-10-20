@@ -84,7 +84,7 @@ Resources:
       Code:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref CopyScriptKey
-      Handler: copy_s3_object_to_rds_db.lambda_handler
+      Handler: S3LambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 30
@@ -101,7 +101,7 @@ Resources:
       Code:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref CustomNotificationKey
-      Handler: custom_notification.lambda_handler
+      Handler: CustomResourceLambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 60
