@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: S3 Storage Buckets Infrastructure
+
+Parameters:
+  ScriptBucket:
+    Description: S3 bucket to store code script zip files
+    Type: String
+
+  JsonFilesBucket:
+    Description: S3 bucket to store json files for copy-s3-object-to-rds-db project
+    Type: String
+
+Resources:
+  ScriptBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ScriptBucket
+
+  JsonFilesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref JsonFilesBucket
