@@ -8,11 +8,11 @@ Parameters:
     Description: Resource path for AWS API Gateway
     Default: dynamodbmanager
 
-  InitFunctionObjectKey:
+  InitFunctionKey:
     Description: S3 object key for the init function javascript script
     Type: String
 
-  ApiFunctionObjectKey:
+  ApiFunctionKey:
     Description: S3 object key for the API function javascript script
     Type: String
 
@@ -121,7 +121,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref InitFunctionObjectKey
+        S3Key: !Ref InitFunctionKey
       Handler: InitFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
@@ -212,7 +212,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref ApiFunctionObjectKey
+        S3Key: !Ref ApiFunctionKey
       Handler: ApiLambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
