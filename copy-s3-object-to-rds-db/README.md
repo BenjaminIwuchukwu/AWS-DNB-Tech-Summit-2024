@@ -12,7 +12,7 @@ A MySQL database is chosen as this is currently the least expensive database cho
 
 <a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-rds-db/images/AWS_architecture.jpg"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/copy-s3-object-to-rds-db/images/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
 
-Python3.12 function runtime is used for the lambda functions
+python3.8 function runtime is used for the lambda functions
 
 _NOTE: Details and description of each cloudformation parameter can be found in each parameter's description property._
 

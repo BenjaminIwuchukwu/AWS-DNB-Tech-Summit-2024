@@ -10,7 +10,7 @@ For this solution, a serverless implementation making use of lambdas would be pr
 
 <a href="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/api-dynamo-db/images/AWS_architecture.jpg"><img src="https://github.com/BenjaminIwuchukwu/AWS-DNB-Tech-Summit-2024/blob/main/api-dynamo-db/images/AWS_architecture.jpg?raw=true" alt="AWS Architecture Diagram" border="0"></a>
 
-Nodejs18 function runtime is used for the lambda functions
+Nodejs14 function runtime is used for the lambda functions
 
 ## How to deploy
 

@@ -83,7 +83,7 @@ Resources:
         S3Key: !Ref CopyScriptKey
       Handler: S3LambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: python3.12
+      Runtime: python3.8
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:
@@ -139,7 +139,7 @@ Resources:
               print("Delete request completed.")
       Handler: index.handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: python3.12
+      Runtime: python3.8
       Timeout: 60
       VpcConfig:
         SecurityGroupIds:
