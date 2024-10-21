@@ -8,10 +8,6 @@ Parameters:
     Description: Resource path for AWS API Gateway
     Default: dynamodbmanager
 
-  InitFunctionKey:
-    Description: S3 object key for the init function javascript script
-    Type: String
-
   ApiFunctionKey:
     Description: S3 object key for the API function javascript script
     Type: String
@@ -127,9 +123,71 @@ Resources:
         Variables:
           DynamoDBTableName: !Ref DynamoDBTableName
       Code:
-        S3Bucket: !ImportValue ScriptBucket
-        S3Key: !Ref InitFunctionKey
-      Handler: InitFunction.handler
+        ZipFile: |
+          const AWS = require("aws-sdk");
+          const response = require("./cfn-response");
+          const dynamo = new AWS.DynamoDB();
+          const tableName = process.env.DynamoDBTableName;
+
+          exports.handler = function (event, context) {
+            if (event.RequestType == "Create" || event.RequestType == "Update") {
+              if (event.ResourceProperties.Dtype == "location") {
+                var params = {
+                  Item: {
+                    PK: {
+                      S: event.ResourceProperties.Did,
+                    },
+                    SK: {
+                      S: event.ResourceProperties.Did,
+                    },
+                    address: {
+                      S: event.ResourceProperties.Daddress,
+                    },
+                    brandId: {
+                      S: event.ResourceProperties.DbrandId,
+                    },
+                    hasOffer: {
+                      BOOL: false,
+                    },
+                  },
+                  TableName: tableName,
+                };
+              } else {
+                var params = {
+                  Item: {
+                    PK: {
+                      S: event.ResourceProperties.Did,
+                    },
+                    SK: {
+                      S: event.ResourceProperties.Did,
+                    },
+                    name: {
+                      S: event.ResourceProperties.Dname,
+                    },
+                    brandId: {
+                      S: event.ResourceProperties.DbrandId,
+                    },
+                    locationsTotal: {
+                      N: "0",
+                    },
+                  },
+                  TableName: tableName,
+                };
+              }
+              dynamo.putItem(params, function (err, data) {
+                if (err) {
+                  response.send(event, context, "FAILED", { params: params, err: err });
+                } else {
+                  response.send(event, context, "SUCCESS", { params: params });
+                }
+              });
+            }
+
+            if (event.RequestType == "Delete") {
+              response.send(event, context, "SUCCESS", {});
+            }
+          };
+      Handler: index.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: nodejs18.x
       Timeout: 60

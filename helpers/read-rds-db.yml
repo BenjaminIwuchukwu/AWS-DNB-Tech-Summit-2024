@@ -24,7 +24,7 @@ Resources:
       Code:
         ZipFile: |
           import pymysql
-          def lambda_handler(event, context):
+          def handler(event, context):
             try:
               conn = pymysql.connect(host=event['DBHost'], user=event['DBUsername'], password=event['DBPassword'], database=event['DBName'])
             except pymysql.MySQLError as e:
@@ -35,7 +35,7 @@ Resources:
               print("The following items have been retrieved from the database:")
               for row in cur:
                 print(row)
-      Handler: index.lambda_handler
+      Handler: index.handler
       Role: !GetAtt LambdaIAMRole.Arn
       Runtime: python3.12
       Timeout: 30
