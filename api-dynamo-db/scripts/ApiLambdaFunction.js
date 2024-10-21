@@ -64,4 +64,5 @@ exports.handler = function (event, context, callback) {
   dynamo.updateItem(params, callback);
 
   callback(null, { Success: "true" });
+  return;
 };

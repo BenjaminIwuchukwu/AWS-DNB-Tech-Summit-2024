@@ -35,6 +35,7 @@ Resources:
               print("The following items have been retrieved from the database:")
               for row in cur:
                 print(row)
+            return
       Handler: index.handler
       Role: !ImportValue LambdaIAMRole
       Runtime: python3.10

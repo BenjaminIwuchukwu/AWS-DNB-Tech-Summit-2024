@@ -29,3 +29,4 @@ def handler(event, context):
     except Exception as e:
         print('Error copying object {} from bucket {} to database.'.format(key, bucket))
         raise e
+    return
