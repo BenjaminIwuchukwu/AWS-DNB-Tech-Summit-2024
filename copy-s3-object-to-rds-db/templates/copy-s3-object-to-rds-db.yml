@@ -97,7 +97,8 @@ Resources:
     Properties:
       Code:
         ZipFile: |
-          import boto3, cfnresponse
+          import boto3
+          import cfnresponse
           s3 = boto3.resource('s3')
           def handler(event, context):
               responseData={}
