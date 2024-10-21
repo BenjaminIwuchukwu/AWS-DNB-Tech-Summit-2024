@@ -118,7 +118,7 @@ Resources:
                   print('Failed to process:', e)
                   responseStatus = 'FAILED'
                   responseData = {'error': e}
-              return cfnresponse.send(event, context, responseStatus, responseData)
+              cfnresponse.send(event, context, responseStatus, responseData)
           def add_notification(LambdaArn, Bucket):
               s3.BucketNotification(Bucket).put(
                   NotificationConfiguration={
@@ -132,22 +132,16 @@ Resources:
                       ]
                   }
               )
-              return print("Add request completed.")
+              print("Add request completed.")
           def delete_notification(Bucket):
               s3.BucketNotification(Bucket).put(
                   NotificationConfiguration={}
               )
-              return print("Delete request completed.")
+              print("Delete request completed.")
       Handler: index.handler
       Role: !ImportValue LambdaIAMRole
       Runtime: python3.10
       Timeout: 60
-      VpcConfig:
-        SecurityGroupIds:
-          - !ImportValue SummitVPCSG
-        SubnetIds:
-          - !ImportValue SummitSubnet1
-          - !ImportValue SummitSubnet2
 
   LambdaInvokePermission:
     Type: "AWS::Lambda::Permission"

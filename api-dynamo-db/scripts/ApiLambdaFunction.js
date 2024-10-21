@@ -1,6 +1,6 @@
-const AWS = require("aws-sdk");
-const dynamo = new AWS.DynamoDB();
-const tableName = process.env.DynamoDBTableName;
+var AWS = require("aws-sdk");
+var dynamo = new AWS.DynamoDB();
+var tableName = process.env.DynamoDBTableName;
 
 exports.handler = function (event, context, callback) {
   var location_id = event.body.location.id;
@@ -64,5 +64,4 @@ exports.handler = function (event, context, callback) {
   dynamo.updateItem(params, callback);
 
   callback(null, { Success: "true" });
-  return;
 };

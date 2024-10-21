@@ -94,12 +94,15 @@ Resources:
           DynamoDBTableName: !Ref DynamoDBTableName
       Code:
         ZipFile: |
-          const AWS = require("aws-sdk");
-          const response = require("./cfn-response");
-          const dynamo = new AWS.DynamoDB();
-          const tableName = process.env.DynamoDBTableName;
+          var AWS = require("aws-sdk");
+          var response = require("./cfn-response");
+          var dynamo = new AWS.DynamoDB();
+          var tableName = process.env.DynamoDBTableName;
 
           exports.handler = function (event, context) {
+            if (event.RequestType == "Delete") {
+              response.send(event, context, "SUCCESS", {});
+            }
             if (event.RequestType == "Create" || event.RequestType == "Update") {
               if (event.ResourceProperties.Dtype == "location") {
                 var params = {
@@ -152,22 +155,11 @@ Resources:
                 }
               });
             }
-
-            if (event.RequestType == "Delete") {
-              response.send(event, context, "SUCCESS", {});
-            }
-            return;
           };
       Handler: index.handler
       Role: !ImportValue LambdaIAMRole
       Runtime: nodejs16.x
       Timeout: 60
-      VpcConfig:
-        SecurityGroupIds:
-          - !ImportValue SummitVPCSG
-        SubnetIds:
-          - !ImportValue SummitSubnet1
-          - !ImportValue SummitSubnet2
 
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
