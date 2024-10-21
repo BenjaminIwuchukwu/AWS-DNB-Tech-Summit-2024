@@ -189,7 +189,7 @@ Resources:
           };
       Handler: index.handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Timeout: 60
       VpcConfig:
         SecurityGroupIds:
@@ -283,7 +283,7 @@ Resources:
         S3Key: !Ref ApiFunctionKey
       Handler: ApiLambdaFunction.handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Timeout: 60
       VpcConfig:
         SecurityGroupIds:

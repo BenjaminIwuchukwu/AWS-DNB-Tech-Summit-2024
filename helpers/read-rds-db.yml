@@ -37,7 +37,7 @@ Resources:
                 print(row)
       Handler: index.handler
       Role: !GetAtt LambdaIAMRole.Arn
-      Runtime: python3.8
+      Runtime: python3.10
       Timeout: 30
       VpcConfig:
         SecurityGroupIds:
