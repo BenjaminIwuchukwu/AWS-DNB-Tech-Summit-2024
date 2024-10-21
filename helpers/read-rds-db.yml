@@ -36,7 +36,7 @@ Resources:
               for row in cur:
                 print(row)
       Handler: index.handler
-      Role: !GetAtt LambdaIAMRole.Arn
+      Role: !ImportValue LambdaIAMRole
       Runtime: python3.10
       Timeout: 30
       VpcConfig:
@@ -45,19 +45,3 @@ Resources:
         SubnetIds:
           - !ImportValue SummitSubnet1
           - !ImportValue SummitSubnet2
-
-  LambdaIAMRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole

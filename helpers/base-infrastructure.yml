@@ -68,6 +68,45 @@ Resources:
       SourceSecurityGroupId: !Ref SummitVPCSG
       GroupId: !Ref SummitVPCSG
 
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:UpdateItem
+                Resource: "*"
+        - PolicyName: S3PutBucketNotificationAccess
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutBucketNotification
+                Resource: "*"
+
 Outputs:
   ScriptBucket:
     Description: Bucket for storing code scripts and layer zip files
@@ -104,3 +143,9 @@ Outputs:
     Value: !Ref SummitVPCSG
     Export:
       Name: SummitVPCSG
+
+  LambdaIAMRole:
+    Description: IAM role for lambda functions
+    Value: !GetAtt LambdaIAMRole.Arn
+    Export:
+      Name: LambdaIAMRole

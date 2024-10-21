@@ -86,36 +86,6 @@ Resources:
       Daddress: "Address 3"
       DbrandId: "692126c8-6e72-4ad7-8a73-25fc2f1f56e4"
 
-  LambdaIAMRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: "/"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-      Policies:
-        - PolicyName: dynamodbAccessRole
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "dynamodb:DeleteItem"
-                  - "dynamodb:GetItem"
-                  - "dynamodb:PutItem"
-                  - "dynamodb:Query"
-                  - "dynamodb:Scan"
-                  - "dynamodb:UpdateItem"
-                Resource: "*"
-
   InitFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -188,7 +158,7 @@ Resources:
             }
           };
       Handler: index.handler
-      Role: !GetAtt LambdaIAMRole.Arn
+      Role: !ImportValue LambdaIAMRole
       Runtime: nodejs16.x
       Timeout: 60
       VpcConfig:
@@ -282,7 +252,7 @@ Resources:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref ApiFunctionKey
       Handler: ApiLambdaFunction.handler
-      Role: !GetAtt LambdaIAMRole.Arn
+      Role: !ImportValue LambdaIAMRole
       Runtime: nodejs16.x
       Timeout: 60
       VpcConfig:

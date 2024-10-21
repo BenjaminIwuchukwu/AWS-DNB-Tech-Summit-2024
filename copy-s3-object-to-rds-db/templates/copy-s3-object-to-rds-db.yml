@@ -82,7 +82,7 @@ Resources:
         S3Bucket: !ImportValue ScriptBucket
         S3Key: !Ref CopyScriptKey
       Handler: S3LambdaFunction.handler
-      Role: !GetAtt LambdaIAMRole.Arn
+      Role: !ImportValue LambdaIAMRole
       Runtime: python3.10
       Timeout: 30
       VpcConfig:
@@ -138,7 +138,7 @@ Resources:
               )
               print("Delete request completed.")
       Handler: index.handler
-      Role: !GetAtt LambdaIAMRole.Arn
+      Role: !ImportValue LambdaIAMRole
       Runtime: python3.10
       Timeout: 60
       VpcConfig:
@@ -154,34 +154,6 @@ Resources:
       FunctionName: !GetAtt S3LambdaFunction.Arn
       Action: "lambda:InvokeFunction"
       Principal: s3.amazonaws.com
-
-  LambdaIAMRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-      Policies:
-        - PolicyName: S3PutBucketNotification
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:PutBucketNotification"
-                Resource: !Sub
-                  - "arn:aws:s3:::${S3DataBucket}"
-                  - S3DataBucket: !ImportValue JsonFilesBucket
 
   LambdaTrigger:
     Type: "Custom::LambdaTrigger"
