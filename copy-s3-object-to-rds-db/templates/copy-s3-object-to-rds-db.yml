@@ -4,6 +4,7 @@ Description: Infrastructure for copying data from S3 to database
 
 Parameters:
   PymysqlLayerKey:
+    Default: pymysql.zip
     Description: S3 object key for the MySQL python layer
     Type: String
 

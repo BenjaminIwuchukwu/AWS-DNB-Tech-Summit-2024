@@ -1,6 +1,7 @@
 var AWS = require("aws-sdk");
 var dynamo = new AWS.DynamoDB();
-var tableName = "LocationsAndOffers";
+
+const tableName = process.env.DynamoDBTableName;
 
 exports.handler = function (event, context, callback) {
   var location_id = event.body.location.id;

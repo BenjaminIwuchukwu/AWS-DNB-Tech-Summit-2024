@@ -1,7 +1,8 @@
 var response = require("cfn-response");
 var AWS = require("aws-sdk");
 var dynamo = new AWS.DynamoDB();
-var tableName = "LocationsAndOffers";
+
+const tableName = process.env.DynamoDBTableName;
 
 exports.handler = function (event, context) {
   if (event.RequestType == "Create" || event.RequestType == "Update") {

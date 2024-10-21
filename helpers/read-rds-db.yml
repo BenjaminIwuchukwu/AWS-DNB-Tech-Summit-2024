@@ -4,6 +4,7 @@ Description: Infrastructure for reading MySQL database
 
 Parameters:
   PymysqlLayerKey:
+    Default: pymysql.zip
     Description: S3 object key for the MySQL python layer
     Type: String
 
